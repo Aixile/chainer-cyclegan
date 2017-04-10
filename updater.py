@@ -54,25 +54,44 @@ class Updater(chainer.training.StandardUpdater):
         self._iter = 0
         self._max_buffer_size = 50
         xp = self.gen_g.xp
-        self._buffer_x = xp.zeros((50, 3, self._image_size, self._image_size)).astype("f")
-        self._buffer_y = xp.zeros((50, 3, self._image_size, self._image_size)).astype("f")
+        self._buffer_x = xp.zeros((self._max_buffer_size , 3, self._image_size, self._image_size)).astype("f")
+        self._buffer_y = xp.zeros((self._max_buffer_size , 3, self._image_size, self._image_size)).astype("f")
     #    self._buffer_cnt = 0
         #self._buffer
         super(Updater, self).__init__(*args, **kwargs)
 
-    def getAndUpdateBufferX(self, data):
-        id = self._iter % self._max_buffer_size
-        self._buffer_x[id, :] = data[0]
+    def getAndUpdateBufferX(self, data, size):
         if self._iter < self._max_buffer_size:
-            return self._buffer_x[0:id]
-        return self._buffer_x
+            self._buffer_x[self._iter, :] = data[0]
+        else:
+            self._buffer_x[0:self._max_buffer_size-2, :] = self._buffer_x[1:self._max_buffer_size-1, :]
+            self._buffer_x[self._max_buffer_size-1, : ]=data[0]
 
-    def getAndUpdateBufferY(self, data):
-        id = self._iter % self._max_buffer_size
-        self._buffer_y[id, :] = data[0]
+        if self._iter < size:
+            return self._buffer_x[0:self._iter, :]
         if self._iter < self._max_buffer_size:
-            return self._buffer_y[0:id]
-        return self._buffer_y
+            return self._buffer_x[self._iter-size:self._iter, :]
+        return self._buffer_x[self._max_buffer_size-1-size:self._max_buffer_size-1, :]
+
+        #id = self._iter % self._max_buffer_size
+        #self._buffer_x[id, :] = data[0]
+        #if self._iter < self._max_buffer_size:
+        #    return self._buffer_x[0:id]
+        #return self._buffer_x
+
+    def getAndUpdateBufferY(self, data, size):
+        if self._iter < self._max_buffer_size:
+            self._buffer_y[self._iter, :] = data[0]
+        else:
+            self._buffer_y[0:self._max_buffer_size-2, :] = self._buffer_y[1:self._max_buffer_size-1, :]
+            self._buffer_y[self._max_buffer_size-1, : ]=data[0]
+
+        if self._iter < size:
+            return self._buffer_y[0:self._iter, :]
+        if self._iter < self._max_buffer_size:
+            return self._buffer_y[self._iter-size:self._iter, :]
+        return self._buffer_y[self._max_buffer_size-1-size:self._max_buffer_size-1, :]
+
 
     def update_core(self):
         xp = self.gen_g.xp
@@ -80,8 +99,10 @@ class Updater(chainer.training.StandardUpdater):
         self._iter += 1
         #print(self._iter)
         batch = self.get_iterator('main').next()
+        batch_dis = self.get_iterator('dis').next()
 
         batchsize = len(batch)
+        batchsize_dis = len(batch_dis)
 
         w_in = self._image_size
 
@@ -97,13 +118,24 @@ class Updater(chainer.training.StandardUpdater):
         x = Variable(x)
         y = Variable(y)
 
+        x_dis = xp.zeros((batchsize_dis, 3, w_in, w_in)).astype("f")
+        y_dis = xp.zeros((batchsize_dis, 3, w_in , w_in)).astype("f")
+        for i in range(batchsize_dis):
+            x_dis[i, :] = xp.asarray(batch_dis[i][0])
+            y_dis[i, :] = xp.asarray(batch_dis[i][1])
+
+        x_dis = Variable(x_dis)
+        y_dis = Variable(y_dis)
+
         x_y = self.gen_g(x)
-        x_y_copy = self.getAndUpdateBufferX(x_y.data)#Variable(x_y.data)
+        x_y_copy = self.getAndUpdateBufferX(x_y.data, batchsize_dis)#Variable(x_y.data)
         x_y_copy = Variable(x_y_copy)
         x_y_x = self.gen_f(x_y)
 
         y_x = self.gen_f(y)
-        y_x_copy = self.getAndUpdateBufferY(y_x.data) #Variable(y_x.data)
+        y_x_copy = self.getAndUpdateBufferY(y_x.data, batchsize_dis) #Variable(y_x.data)
+        #print(x_y_copy.shape)
+        #print(x_dis.data.shape)
         y_x_copy = Variable(y_x_copy)
         y_x_y = self.gen_g(y_x)
 
@@ -118,12 +150,12 @@ class Updater(chainer.training.StandardUpdater):
         opt_y.zero_grads()
 
         loss_dis_y_fake = loss_func_adv_dis_fake(self.dis_y(x_y_copy))
-        loss_dis_y_real = loss_func_adv_dis_real(self.dis_y(y))
+        loss_dis_y_real = loss_func_adv_dis_real(self.dis_y(y_dis))
         loss_dis_y = loss_dis_y_fake + loss_dis_y_real
         chainer.report({'loss': loss_dis_y}, self.dis_y)
 
         loss_dis_x_fake = loss_func_adv_dis_fake(self.dis_x(y_x_copy))
-        loss_dis_x_real = loss_func_adv_dis_real(self.dis_x(x))
+        loss_dis_x_real = loss_func_adv_dis_real(self.dis_x(x_dis))
         loss_dis_x = loss_dis_x_fake + loss_dis_x_real
         chainer.report({'loss': loss_dis_x}, self.dis_x)
 

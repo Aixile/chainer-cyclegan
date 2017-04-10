@@ -28,7 +28,7 @@ from horse2zebra import *
 def main():
     parser = argparse.ArgumentParser(
         description='Train script for test NN module')
-    parser.add_argument('--batchsize', '-b', type=int, default=1)
+    parser.add_argument('--batchsize', '-b', type=int, default=16)
     parser.add_argument('--max_data', '-m', type=int, default=1000000)
     parser.add_argument('--gpu', '-g', type=int, default=0,
                         help='GPU ID (negative value indicates CPU)')
@@ -107,6 +107,9 @@ def main():
     train_iter = chainer.iterators.MultiprocessIterator(
         train_dataset, 1, n_processes=4)
 
+    train2_iter = chainer.iterators.MultiprocessIterator(
+        train_dataset, args.batchsize, n_processes=4)
+
     test_dataset = horse2zebra_Dataset_test()
     test_iter = chainer.iterators.SerialIterator(
         test_dataset, 4)
@@ -116,6 +119,7 @@ def main():
         models=(gen_g, gen_f, dis_x, dis_y),
         iterator={
             'main': train_iter,
+            'dis' : train2_iter,
             'test': test_iter
             },
         optimizer={
