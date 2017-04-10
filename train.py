@@ -29,7 +29,7 @@ def main():
     parser = argparse.ArgumentParser(
         description='Train script for test NN module')
     parser.add_argument('--batchsize', '-b', type=int, default=16)
-    parser.add_argument('--max_data', '-m', type=int, default=1000000)
+    parser.add_argument('--max_iter', '-m', type=int, default=120000)
     parser.add_argument('--gpu', '-g', type=int, default=0,
                         help='GPU ID (negative value indicates CPU)')
     parser.add_argument('--out', '-o', default='result',
@@ -57,7 +57,7 @@ def main():
     args = parser.parse_args()
     print(args)
 
-    max_iter = args.max_data // args.batchsize
+    max_iter = args.max_iter
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
@@ -137,7 +137,7 @@ def main():
             #'lambda4': args.lambda4,
         })
 
-    model_save_interval = (10000, 'iteration')
+    model_save_interval = (4000, 'iteration')
     trainer = training.Trainer(updater, (max_iter, 'iteration'), out=args.out)
     trainer.extend(extensions.snapshot_object(
         gen_g, 'gen_g{.updater.iteration}.npz'), trigger=model_save_interval)
