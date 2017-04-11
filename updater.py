@@ -21,14 +21,14 @@ def loss_func_rec_l2(x_out, t):
     return F.mean_squared_error(x_out, t)
 
 def loss_func_adv_dis_fake(y_fake):
-    return cal_l2_sum(y_fake, 0)
+    return cal_l2_sum(y_fake, 0.1)
     #return F.sum(F.softplus(-y_fake)) / y_fake.data.shape[0]
 
 def loss_func_adv_dis_real(y_real):
-    return cal_l2_sum(y_real, 1)
+    return cal_l2_sum(y_real, 0.9)
 
 def loss_func_adv_gen(y_fake):
-    return cal_l2_sum(y_fake, 1)
+    return cal_l2_sum(y_fake, 0.9)
 
 def loss_func_tv(x_out):
     xp = cuda.get_array_module(x_out.data)
