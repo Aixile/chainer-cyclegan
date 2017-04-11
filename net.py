@@ -106,17 +106,14 @@ class Generator_ResBlock_6(chainer.Chain):
             c2 = CBR(32, 64, bn=True, sample='down'),
             c3 = CBR(64, 128, bn=True, sample='down'),
             c4 = ResBlock(128, bn=True),
+            c5 = ResBlock(128, bn=True),
             c6 = ResBlock(128, bn=True),
             c7 = ResBlock(128, bn=True),
             c8 = ResBlock(128, bn=True),
             c9 = ResBlock(128, bn=True),
-            c10 = ResBlock(128, bn=True),
-            #c11 = ResBlock(128, bn=True),
-            #c12 = ResBlock(128, bn=True),
-            #c13 = ResBlock(128, bn=True),
-            c14 = CBR(128, 64, bn=True, sample='up'),
-            c15 = CBR(64, 32, bn=True, sample='up'),
-            c16 = CBR(32, 3, bn=True, sample='none-7', activation=F.tanh)
+            c10 = CBR(128, 64, bn=True, sample='up'),
+            c11 = CBR(64, 32, bn=True, sample='up'),
+            c12 = CBR(32, 3, bn=True, sample='none-7', activation=F.tanh)
         )
 
     def __call__(self, x, test=False, volatile=False):
@@ -130,12 +127,8 @@ class Generator_ResBlock_6(chainer.Chain):
         h = self.c8(h, test=test)
         h = self.c9(h, test=test)
         h = self.c10(h, test=test)
-        #h = self.c11(h, test=test)
-        #h = self.c12(h, test=test)
-        #h = self.c13(h, test=test)
-        h = self.c14(h, test=test)
-        h = self.c15(h, test=test)
-        h = self.c16(h, test=test)
+        h = self.c11(h, test=test)
+        h = self.c12(h, test=test)
         return h
 
 class Generator_ResBlock_9(chainer.Chain):

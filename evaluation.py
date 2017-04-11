@@ -36,7 +36,7 @@ def evaluation(gen_g, gen_f, test_image_folder, image_size=256, side=2):
         img_c = np.clip(img_c, 0, 255)
         img_c = img_c.astype(np.uint8)
         img_c = img_c.reshape((side, side, image_size, image_size, 3)).transpose(0,2,1,3,4).reshape((side*image_size, side*image_size, 3))[:,:,::-1]
-        Image.fromarray(img_c).save(test_image_folder+"/iter_"+str(trainer.updater.iteration)+"_G.png")
+        Image.fromarray(img_c).save(test_image_folder+"/iter_"+str(trainer.updater.iteration)+"_G.jpg")
 
         t = Variable(t)
         result = gen_f(t, test=True)
@@ -48,7 +48,7 @@ def evaluation(gen_g, gen_f, test_image_folder, image_size=256, side=2):
         img_t = img_t.astype(np.uint8)
         img_t = img_t.reshape((side, side, image_size, image_size, 3)).transpose(0,2,1,3,4).reshape((side*image_size, side*image_size, 3))[:,:,::-1]
         #print(img_t)
-        Image.fromarray(img_t).save(test_image_folder+"/iter_"+str(trainer.updater.iteration)+"_F.png")
+        Image.fromarray(img_t).save(test_image_folder+"/iter_"+str(trainer.updater.iteration)+"_F.jpg")
 
     def evaluation(trainer):
         it = trainer.updater.get_iterator('test')

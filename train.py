@@ -46,11 +46,15 @@ def main():
     parser.add_argument("--load_gen_model", default='', help='load generator model')
     parser.add_argument("--load_dis_model", default='', help='load discriminator model')
 
-    parser.add_argument('--gen_class', default='Generator_ResBlock_9', help='Default generator class')
+    parser.add_argument('--gen_class', default='Generator_ResBlock_6', help='Default generator class')
     parser.add_argument('--dis_class', default='Discriminator', help='Default discriminator class')
 
-    parser.add_argument("--lambda1", type=float, default=1.0, help='lambda for reconstruction loss')
-    parser.add_argument("--lambda2", type=float, default=10.0, help='lambda for adversarial loss')
+    parser.add_argument("--lambda1", type=float, default=10.0, help='lambda for reconstruction loss')
+    parser.add_argument("--lambda2", type=float, default=1.0, help='lambda for adversarial loss')
+
+    parser.add_argument("--flip", type=int, default=1, help='flip images for data augmentation')
+    parser.add_argument("--resize_to", type=int, default = 200, help='resize the image to')
+    parser.add_argument("--crop_to", type=int, default = 128, help='resize the image to')
 #    parser.add_argument("--lambda3", type=float, default=0.0, help='lambda for feature loss')
 #    parser.add_argument("--lambda4", type=float, default=0.0, help='lambda for total variation loss')
 
@@ -103,14 +107,14 @@ def main():
     opt_x=make_optimizer(dis_x, alpha=args.learning_rate_d)
     opt_y=make_optimizer(dis_y, alpha=args.learning_rate_d)
 
-    train_dataset = horse2zebra_Dataset_train()
+    train_dataset = horse2zebra_Dataset_train(flip=args.flip, resize_to=args.resize_to, crop_to=args.crop_to)
     train_iter = chainer.iterators.MultiprocessIterator(
         train_dataset, 1, n_processes=4)
 
     train2_iter = chainer.iterators.MultiprocessIterator(
         train_dataset, args.batchsize, n_processes=4)
 
-    test_dataset = horse2zebra_Dataset_test()
+    test_dataset = horse2zebra_Dataset_test(flip=args.flip, resize_to=args.resize_to, crop_to=args.crop_to)
     test_iter = chainer.iterators.SerialIterator(
         test_dataset, 4)
 
@@ -133,7 +137,7 @@ def main():
             'lambda1': args.lambda1,
             'lambda2': args.lambda2,
         #    'lambda3': args.lambda3,
-            'image_size' : 256
+            'image_size' : args.crop_to
             #'lambda4': args.lambda4,
         })
 
@@ -154,7 +158,7 @@ def main():
     trainer.extend(extensions.ProgressBar(update_interval=50))
 
     trainer.extend(
-        evaluation(gen_g, gen_f, args.eval_folder
+        evaluation(gen_g, gen_f, args.eval_folder, image_size=args.crop_to
         ), trigger=(args.eval_interval ,'iteration')
     )
 
