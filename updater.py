@@ -190,7 +190,7 @@ class Updater(chainer.training.StandardUpdater):
         chainer.report({'loss_adv': loss_gen_g_adv}, self.gen_g)
         chainer.report({'loss_adv': loss_gen_f_adv}, self.gen_f)
 
-        if self._iter%50 ==0:
+        if self._iter%100 ==0:
             img = xp.zeros((6, 3, w_in, w_in)).astype("f")
             img[0, : ] = x.data
             img[1, : ] = x_y.data
