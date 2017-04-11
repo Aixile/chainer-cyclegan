@@ -75,8 +75,8 @@ class horse2zebra_Dataset_train(dataset_mixin.DatasetMixin):
 
 
     def get_example(self, i):
-        idA = self.trainAkey[i]
-        idB = self.trainBkey[i]
+        idA = self.trainAkey[np.random.randint(0,len(self.trainAkey))]
+        idB = self.trainBkey[np.random.randint(0,len(self.trainBkey))]
 
         #print(id)
         #cv2.i
