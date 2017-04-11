@@ -49,8 +49,8 @@ def main():
     parser.add_argument('--gen_class', default='Generator_ResBlock_9', help='Default generator class')
     parser.add_argument('--dis_class', default='Discriminator', help='Default discriminator class')
 
-    parser.add_argument("--lambda1", type=float, default=10.0, help='lambda for reconstruction loss')
-#    parser.add_argument("--lambda2", type=float, default=1.0, help='lambda for adversarial loss')
+    parser.add_argument("--lambda1", type=float, default=1.0, help='lambda for reconstruction loss')
+    parser.add_argument("--lambda2", type=float, default=10.0, help='lambda for adversarial loss')
 #    parser.add_argument("--lambda3", type=float, default=0.0, help='lambda for feature loss')
 #    parser.add_argument("--lambda4", type=float, default=0.0, help='lambda for total variation loss')
 
@@ -131,7 +131,7 @@ def main():
         device=args.gpu,
         params={
             'lambda1': args.lambda1,
-        #    'lambda2': args.lambda2,
+            'lambda2': args.lambda2,
         #    'lambda3': args.lambda3,
             'image_size' : 256
             #'lambda4': args.lambda4,
