@@ -114,7 +114,7 @@ def main():
     train2_iter = chainer.iterators.MultiprocessIterator(
         train_dataset, args.batchsize, n_processes=4)
 
-    test_dataset = horse2zebra_Dataset_test(flip=args.flip, resize_to=args.resize_to, crop_to=args.crop_to)
+    test_dataset = horse2zebra_Dataset_train(flip=args.flip, resize_to=args.resize_to, crop_to=args.crop_to)
     test_iter = chainer.iterators.SerialIterator(
         test_dataset, 4)
 
