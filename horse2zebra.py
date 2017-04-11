@@ -40,12 +40,12 @@ def preprocess_image(img):
     #img -= np.array([103.939, 116.779, 123.68], dtype=np.float32)
     """
     img = img.astype("f")
-    img = (img-127.5)/255.0
+    img = img/127.5 - 1
     img = img.transpose((2, 0, 1))
     return img
 
 def postprocess_image(img):
-    img = (img*255.0)+127.5
+    img = (img + 1) *127.5
     img = np.clip(img, 0, 255)
     img = img.astype(np.uint8)
     img.transpose((1, 2, 0))

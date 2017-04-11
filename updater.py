@@ -9,6 +9,8 @@ import os
 from chainer import cuda, optimizers, serializers, Variable
 from chainer import training
 
+from PIL import Image
+
 def cal_l2_sum(h, t):
     return F.sum((h-t)**2)/ np.prod(h.data.shape)
 
@@ -50,6 +52,7 @@ class Updater(chainer.training.StandardUpdater):
         self._lambda2 = params['lambda2']
         #self._lambda3 = params['lambda3']
         self._image_size = params['image_size']
+        self._eval_foler = params['eval_folder']
         #self._lambda4 = params['lambda4']
         self._iter = 0
         self._max_buffer_size = 50
@@ -87,6 +90,16 @@ class Updater(chainer.training.StandardUpdater):
             return data
         id = np.random.randint(0, self._max_buffer_size)
         return self._buffer_y[id, :].reshape((1, 3, self._image_size, self._image_size))
+
+    def save_images(self,img, w=2, h=3):
+        img = cuda.to_cpu(img)
+        img = img.reshape((w, h, 3, self._image_size, self._image_size))
+        img = img.transpose(0,1,3,4,2)
+        img = (img + 1) *127.5
+        img = np.clip(img, 0, 255)
+        img = img.astype(np.uint8)
+        img = img.reshape((w, h, self._image_size, self._image_size, 3)).transpose(0,2,1,3,4).reshape((w*self._image_size, h*self._image_size, 3))[:,:,::-1]
+        Image.fromarray(img).save(self._eval_foler+"/iter_"+str(self._iter)+".jpg")
 
 
     def update_core(self):
@@ -176,3 +189,13 @@ class Updater(chainer.training.StandardUpdater):
         chainer.report({'loss_rec': loss_cycle_x}, self.gen_f)
         chainer.report({'loss_adv': loss_gen_g_adv}, self.gen_g)
         chainer.report({'loss_adv': loss_gen_f_adv}, self.gen_f)
+
+        if self._iter%50 ==0:
+            img = xp.zeros((6, 3, w_in, w_in)).astype("f")
+            img[0, : ] = x.data
+            img[1, : ] = x_y.data
+            img[2, : ] = x_y_x.data
+            img[3, : ] = y.data
+            img[4, : ] = y_x.data
+            img[5, : ] = y_x_y.data
+            self.save_images(img)

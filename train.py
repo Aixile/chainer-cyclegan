@@ -137,7 +137,8 @@ def main():
             'lambda1': args.lambda1,
             'lambda2': args.lambda2,
         #    'lambda3': args.lambda3,
-            'image_size' : args.crop_to
+            'image_size' : args.crop_to,
+            'eval_folder' : args.eval_folder
             #'lambda4': args.lambda4,
         })
 
@@ -157,10 +158,10 @@ def main():
     trainer.extend(extensions.PrintReport(log_keys), trigger=(20, 'iteration'))
     trainer.extend(extensions.ProgressBar(update_interval=50))
 
-    trainer.extend(
-        evaluation(gen_g, gen_f, args.eval_folder, image_size=args.crop_to
-        ), trigger=(args.eval_interval ,'iteration')
-    )
+    #trainer.extend(
+    #    evaluation(gen_g, gen_f, args.eval_folder, image_size=args.crop_to
+    #    ), trigger=(args.eval_interval ,'iteration')
+    #)
 
     # Run the training
     trainer.run()

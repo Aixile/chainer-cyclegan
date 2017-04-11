@@ -32,7 +32,7 @@ def evaluation(gen_g, gen_f, test_image_folder, image_size=256, side=2):
 
         img_c = img.reshape((side, side, 3, image_size, image_size))
         img_c = img_c.transpose(0,1,3,4,2)
-        img_c = img_c*255.0 + 127.5
+        img_c = (img + 1) *127.5
         img_c = np.clip(img_c, 0, 255)
         img_c = img_c.astype(np.uint8)
         img_c = img_c.reshape((side, side, image_size, image_size, 3)).transpose(0,2,1,3,4).reshape((side*image_size, side*image_size, 3))[:,:,::-1]
@@ -43,7 +43,7 @@ def evaluation(gen_g, gen_f, test_image_folder, image_size=256, side=2):
         img_t = result.data.get()
         img_t = img_t.reshape( (side, side, 3, image_size, image_size))
         img_t = img_t.transpose(0,1,3,4,2)
-        img_t = img_t*255.0 + 127.5
+        img_t = (img + 1) *127.5
         img_t = np.clip(img_t, 0, 255)
         img_t = img_t.astype(np.uint8)
         img_t = img_t.reshape((side, side, image_size, image_size, 3)).transpose(0,2,1,3,4).reshape((side*image_size, side*image_size, 3))[:,:,::-1]
