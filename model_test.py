@@ -34,6 +34,7 @@ class testUpdater(chainer.training.StandardUpdater):
 
     def update_core(self):
         self._iter += 1
+        print(self._iter)
         xp = self.gen_g.xp
         self._iter += 1
         batch = self.get_iterator('main').next()
@@ -77,7 +78,7 @@ if __name__ == '__main__':
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
-        
+
     if not os.path.exists(args.eval_folder):
         os.makedirs(args.eval_folder)
 
