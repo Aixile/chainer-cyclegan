@@ -38,7 +38,6 @@ class testUpdater(chainer.training.StandardUpdater):
         self._iter += 1
         print(self._iter)
         xp = self.gen_g.xp
-        self._iter += 1
         batch = self.get_iterator('main').next()
         batchsize = 1
         w_in = self._image_size
@@ -48,7 +47,7 @@ class testUpdater(chainer.training.StandardUpdater):
         for i in range(batchsize):
             x[i, :] = xp.asarray(batch[i][0])
             y[i, :] = xp.asarray(batch[i][1])
-            
+
         x = Variable(x)
         y = Variable(y)
 
