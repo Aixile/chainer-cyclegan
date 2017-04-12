@@ -43,8 +43,10 @@ def main():
     parser.add_argument("--learning_rate_g", type=float, default=0.0002, help="Learning rate for generator")
     parser.add_argument("--learning_rate_d", type=float, default=0.0002, help="Learning rate for discriminator")
 
-    parser.add_argument("--load_gen_model", default='', help='load generator model')
-    parser.add_argument("--load_dis_model", default='', help='load discriminator model')
+    parser.add_argument("--load_gen_f_model", default='', help='load generator model')
+    parser.add_argument("--load_gen_g_model", default='', help='load generator model')
+    parser.add_argument("--load_dis_x_model", default='', help='load discriminator model')
+    parser.add_argument("--load_dis_y_model", default='', help='load discriminator model')
 
     parser.add_argument('--gen_class', default='Generator_ResBlock_6', help='Default generator class')
     parser.add_argument('--dis_class', default='Discriminator', help='Default discriminator class')
@@ -78,15 +80,21 @@ def main():
     #vgg = pickle.load(open(paths.pretrained_vgg_imagenet, 'rb'))
     #dis  = Discriminator(in_ch=3)
 
+    if args.load_gen_g_model != '':
+        serializers.load_npz(args.load_gen_g_model, gen_g)
+        print("Generator G model loaded")
 
-    #if args.load_gen_model != '':
-    #    serializers.load_npz(args.load_gen_model, scr)
-    #    print("Generator model loaded")
+    if args.load_gen_f_model != '':
+        serializers.load_npz(args.load_gen_f_model, gen_f)
+        print("Generator F model loaded")
 
-    #if args.load_dis_model != '':
-    #    serializers.load_npz(args.load_dis_model, dis)
-    #    print("Discriminator model loaded")
+    if args.load_dis_x_model != '':
+        serializers.load_npz(args.load_dis_x_model, dis_x)
+        print("Discriminator X model loaded")
 
+    if args.load_dis_y_model != '':
+        serializers.load_npz(args.load_dis_y_model, dis_y)
+        print("Discriminator Y model loaded")
 
     if not os.path.exists(args.eval_folder):
          os.makedirs(args.eval_folder)
