@@ -107,6 +107,8 @@ if __name__ == '__main__':
         iterator={
             'test': test_iter
         },
+        optimizer={
+                },
         device=args.gpu,
         params={
             'image_size' : args.resize_to,
