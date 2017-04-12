@@ -13,6 +13,8 @@ import cv2
 import argparse
 import net
 
+from horse2zebra import *
+
 class testUpdater(chainer.training.StandardUpdater):
     def __init__(self, *args, **kwargs):
         self.gen_g, self.gen_f = kwargs.pop('models')
