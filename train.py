@@ -24,7 +24,7 @@ from horse2zebra import *
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Train script for test NN module')
+        description='Train CycleGAN')
     parser.add_argument('--batchsize', '-b', type=int, default=16)
     parser.add_argument('--max_iter', '-m', type=int, default=120000)
     parser.add_argument('--gpu', '-g', type=int, default=0,
