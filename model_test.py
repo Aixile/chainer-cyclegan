@@ -77,6 +77,9 @@ if __name__ == '__main__':
 
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
+        
+    if not os.path.exists(args.eval_folder):
+        os.makedirs(args.eval_folder)
 
     gen_g = getattr(net, args.gen_class)()
     gen_f = getattr(net, args.gen_class)()
