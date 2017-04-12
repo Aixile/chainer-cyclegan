@@ -53,8 +53,11 @@ def main():
     parser.add_argument("--lambda2", type=float, default=1.0, help='lambda for adversarial loss')
 
     parser.add_argument("--flip", type=int, default=1, help='flip images for data augmentation')
-    parser.add_argument("--resize_to", type=int, default = 200, help='resize the image to')
-    parser.add_argument("--crop_to", type=int, default = 128, help='resize the image to')
+    parser.add_argument("--resize_to", type=int, default=200, help='resize the image to')
+    parser.add_argument("--crop_to", type=int, default=128, help='resize the image to')
+
+    parser.add_argument("--learning_rate_anneal", type=float, default=0, help='anneal the learning rate')
+    parser.add_argument("--learning_rate_anneal_interval", type=int, default=1000, help='time to anneal the learning')
 #    parser.add_argument("--lambda3", type=float, default=0.0, help='lambda for feature loss')
 #    parser.add_argument("--lambda4", type=float, default=0.0, help='lambda for total variation loss')
 
@@ -138,7 +141,9 @@ def main():
             'lambda2': args.lambda2,
         #    'lambda3': args.lambda3,
             'image_size' : args.crop_to,
-            'eval_folder' : args.eval_folder
+            'eval_folder' : args.eval_folder,
+            'learning_rate_anneal' : args.learning_rate_anneal,
+            'learning_rate_anneal_interval' : args.learning_rate_anneal_interval
             #'lambda4': args.lambda4,
         })
 

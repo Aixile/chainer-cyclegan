@@ -50,6 +50,8 @@ class Updater(chainer.training.StandardUpdater):
         params = kwargs.pop('params')
         self._lambda1 = params['lambda1']
         self._lambda2 = params['lambda2']
+        self._learning_rate_anneal = params['learning_rate_anneal']
+        self._learning_rate_anneal_interval = params['learning_rate_anneal_interval']
         #self._lambda3 = params['lambda3']
         self._image_size = params['image_size']
         self._eval_foler = params['eval_folder']
@@ -153,6 +155,21 @@ class Updater(chainer.training.StandardUpdater):
         opt_f = self.get_optimizer('gen_f')
         opt_x = self.get_optimizer('dis_x')
         opt_y = self.get_optimizer('dis_y')
+
+        #print(self._learning_rate_anneal)
+        #print(self._learning_rate_anneal_interval)
+        #print( self._iter % self._learning_rate_anneal_interval)
+        if self._learning_rate_anneal > 0 and self._iter % self._learning_rate_anneal_interval == 0:
+            #print("Hello")
+            if opt_g.alpha > self._learning_rate_anneal:
+                opt_g.alpha -= self._learning_rate_anneal
+            if opt_f.alpha > self._learning_rate_anneal:
+                opt_f.alpha -= self._learning_rate_anneal
+            if opt_x.alpha > self._learning_rate_anneal:
+                opt_x.alpha -= self._learning_rate_anneal
+            if opt_y.alpha > self._learning_rate_anneal:
+                opt_y.alpha -= self._learning_rate_anneal
+            #print(opt_g.alpha)
 
         opt_g.zero_grads()
         opt_f.zero_grads()
