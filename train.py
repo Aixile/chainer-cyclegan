@@ -22,9 +22,6 @@ from chainer import cuda, serializers
 import pickle
 from horse2zebra import *
 
-#from common.lsun_bedroom_dataset import LSUN_Bedroom_Dataset
-#import common.paths as paths
-
 def main():
     parser = argparse.ArgumentParser(
         description='Train script for test NN module')
@@ -60,8 +57,6 @@ def main():
 
     parser.add_argument("--learning_rate_anneal", type=float, default=0, help='anneal the learning rate')
     parser.add_argument("--learning_rate_anneal_interval", type=int, default=1000, help='time to anneal the learning')
-#    parser.add_argument("--lambda3", type=float, default=0.0, help='lambda for feature loss')
-#    parser.add_argument("--lambda4", type=float, default=0.0, help='lambda for total variation loss')
 
     args = parser.parse_args()
     print(args)
@@ -76,9 +71,6 @@ def main():
     gen_f = getattr(net, args.gen_class)()
     dis_y = getattr(net, args.dis_class)()
 
-    #scr = Scribbler(n_input=1)
-    #vgg = pickle.load(open(paths.pretrained_vgg_imagenet, 'rb'))
-    #dis  = Discriminator(in_ch=3)
 
     if args.load_gen_g_model != '':
         serializers.load_npz(args.load_gen_g_model, gen_g)
@@ -147,12 +139,10 @@ def main():
         params={
             'lambda1': args.lambda1,
             'lambda2': args.lambda2,
-        #    'lambda3': args.lambda3,
             'image_size' : args.crop_to,
             'eval_folder' : args.eval_folder,
             'learning_rate_anneal' : args.learning_rate_anneal,
             'learning_rate_anneal_interval' : args.learning_rate_anneal_interval
-            #'lambda4': args.lambda4,
         })
 
     model_save_interval = (4000, 'iteration')

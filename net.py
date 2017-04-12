@@ -1,6 +1,6 @@
 import numpy as np
 import sys, os
-sys.path.append(os.path.dirname(__file__))
+#sys.path.append(os.path.dirname(__file__))
 
 import chainer
 import chainer.functions as F
@@ -15,8 +15,6 @@ import numpy as np
 from chainer import Variable
 from chainer.links.model.vision.resnet import prepare
 import chainer
-#import common.paths as paths
-#from common.resize_images import resize_images
 import math
 
 def add_noise(h, test, sigma=0.2):
@@ -31,9 +29,8 @@ class ResBlock(chainer.Chain):
         self.bn = bn
         self.activation = activation
         layers = {}
-        #w = chainer.initializers.Normal(0.02)
-        layers['c0'] = L.Convolution2D(ch, ch, 3, 1, 1) #initialW=w)
-        layers['c1'] = L.Convolution2D(ch, ch, 3, 1, 1) #initialW=w)
+        layers['c0'] = L.Convolution2D(ch, ch, 3, 1, 1)
+        layers['c1'] = L.Convolution2D(ch, ch, 3, 1, 1)
         if bn:
             layers['bn0'] = L.BatchNormalization(ch)
             layers['bn1'] = L.BatchNormalization(ch)
@@ -47,7 +44,6 @@ class ResBlock(chainer.Chain):
         h = self.c1(x)
         if self.bn:
             h = self.bn1(h, test=test)
-        h = h # self.activation(h)
         return h + x
 
 
@@ -80,11 +76,8 @@ class CBR(chainer.Chain):
         if self.sample=="down" or self.sample=="none" or self.sample=='none-9' or self.sample=='none-7':
             h = self.c(x)
         elif self.sample=="up":
-            #print(x.data.shape)
             h = F.unpooling_2d(x, 2, 2, 0, cover_all=False)
-            #print(h.data.shape)
             h = self.c(h)
-            #print(h.data.shape)
         else:
             print("unknown sample method %s"%self.sample)
         if self.bn:
@@ -164,11 +157,8 @@ class Generator_ResBlock_9(chainer.Chain):
         h = self.c11(h, test=test)
         h = self.c12(h, test=test)
         h = self.c13(h, test=test)
-        #print(h.data.shape)
         h = self.c14(h, test=test)
-        #print(h.data.shape)
         h = self.c15(h, test=test)
-        #h = self.c16(h, test=test)
         return h
 
 
@@ -177,7 +167,6 @@ class Discriminator(chainer.Chain):
         layers = {}
         w = chainer.initializers.Normal(0.02)
         layers['c0_0'] = CBR(in_ch, 64, bn=False, sample='down', activation=F.leaky_relu, dropout=False, noise=True)
-        #layers['c0_1'] = CBR(out_ch, 32, bn=False, sample='down', activation=F.leaky_relu, dropout=False)
         layers['c1'] = CBR(64, 128, bn=True, sample='down', activation=F.leaky_relu, dropout=False, noise=True)
         layers['c2'] = CBR(128, 256, bn=True, sample='down', activation=F.leaky_relu, dropout=False, noise=True)
         layers['c3'] = CBR(256, 512, bn=True, sample='down', activation=F.leaky_relu, dropout=False, noise=True)
@@ -185,11 +174,9 @@ class Discriminator(chainer.Chain):
         super(Discriminator, self).__init__(**layers)
 
     def __call__(self, x_0, test=False):
-        #h = F.concat([self.c0_0(x_0, test=test), self.c0_1(x_1, test=test)])
         h = self.c0_0(x_0, test=test)
         h = self.c1(h, test=test)
         h = self.c2(h, test=test)
         h = self.c3(h, test=test)
         h = self.c4(h)
-        #h = F.average_pooling_2d(h, h.data.shape[2], 1, 0)
         return h

@@ -22,7 +22,6 @@ def loss_func_rec_l2(x_out, t):
 
 def loss_func_adv_dis_fake(y_fake):
     return cal_l2_sum(y_fake, 0.1)
-    #return F.sum(F.softplus(-y_fake)) / y_fake.data.shape[0]
 
 def loss_func_adv_dis_real(y_real):
     return cal_l2_sum(y_real, 0.9)
@@ -52,17 +51,13 @@ class Updater(chainer.training.StandardUpdater):
         self._lambda2 = params['lambda2']
         self._learning_rate_anneal = params['learning_rate_anneal']
         self._learning_rate_anneal_interval = params['learning_rate_anneal_interval']
-        #self._lambda3 = params['lambda3']
         self._image_size = params['image_size']
         self._eval_foler = params['eval_folder']
-        #self._lambda4 = params['lambda4']
         self._iter = 0
         self._max_buffer_size = 50
         xp = self.gen_g.xp
         self._buffer_x = xp.zeros((self._max_buffer_size , 3, self._image_size, self._image_size)).astype("f")
         self._buffer_y = xp.zeros((self._max_buffer_size , 3, self._image_size, self._image_size)).astype("f")
-    #    self._buffer_cnt = 0
-        #self._buffer
         super(Updater, self).__init__(*args, **kwargs)
 
     def getAndUpdateBufferX(self, data):
@@ -106,14 +101,10 @@ class Updater(chainer.training.StandardUpdater):
 
     def update_core(self):
         xp = self.gen_g.xp
-    #    print(self._iter)
         self._iter += 1
-        #print(self._iter)
         batch = self.get_iterator('main').next()
-        #batch_dis = self.get_iterator('dis').next()
 
         batchsize = len(batch)
-        #batchsize_dis = len(batch_dis)
 
         w_in = self._image_size
 
@@ -121,33 +112,19 @@ class Updater(chainer.training.StandardUpdater):
         y = xp.zeros((batchsize, 3, w_in , w_in)).astype("f")
 
         for i in range(batchsize):
-            #print(batch[i][0].shape)
-            #print(batch[i][1].shape)
             x[i, :] = xp.asarray(batch[i][0])
             y[i, :] = xp.asarray(batch[i][1])
 
         x = Variable(x)
         y = Variable(y)
 
-        #x_dis = xp.zeros((batchsize_dis, 3, w_in, w_in)).astype("f")
-        #y_dis = xp.zeros((batchsize_dis, 3, w_in , w_in)).astype("f")
-        #for i in range(batchsize_dis):
-        #    x_dis[i, :] = xp.asarray(batch_dis[i][0])
-        #    y_dis[i, :] = xp.asarray(batch_dis[i][1])
-
-        #x_dis = Variable(x_dis)
-        #y_dis = Variable(y_dis)
-
         x_y = self.gen_g(x)
-        x_y_copy = self.getAndUpdateBufferX(x_y.data )#Variable(x_y.data)
-        #print(x_y_copy.shape)
+        x_y_copy = self.getAndUpdateBufferX(x_y.data)
         x_y_copy = Variable(x_y_copy)
         x_y_x = self.gen_f(x_y)
 
         y_x = self.gen_f(y)
-        y_x_copy = self.getAndUpdateBufferY(y_x.data) #Variable(y_x.data)
-        #print(x_y_copy.shape)
-        #print(x_dis.data.shape)
+        y_x_copy = self.getAndUpdateBufferY(y_x.data)
         y_x_copy = Variable(y_x_copy)
         y_x_y = self.gen_g(y_x)
 
@@ -156,11 +133,7 @@ class Updater(chainer.training.StandardUpdater):
         opt_x = self.get_optimizer('dis_x')
         opt_y = self.get_optimizer('dis_y')
 
-        #print(self._learning_rate_anneal)
-        #print(self._learning_rate_anneal_interval)
-        #print( self._iter % self._learning_rate_anneal_interval)
         if self._learning_rate_anneal > 0 and self._iter % self._learning_rate_anneal_interval == 0:
-            #print("Hello")
             if opt_g.alpha > self._learning_rate_anneal:
                 opt_g.alpha -= self._learning_rate_anneal
             if opt_f.alpha > self._learning_rate_anneal:
@@ -169,7 +142,6 @@ class Updater(chainer.training.StandardUpdater):
                 opt_x.alpha -= self._learning_rate_anneal
             if opt_y.alpha > self._learning_rate_anneal:
                 opt_y.alpha -= self._learning_rate_anneal
-            #print(opt_g.alpha)
 
         opt_g.zero_grads()
         opt_f.zero_grads()
