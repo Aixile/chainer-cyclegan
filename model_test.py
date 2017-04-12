@@ -105,7 +105,7 @@ if __name__ == '__main__':
     updater = testUpdater(
         models=(gen_g, gen_f),
         iterator={
-            'test': test_iter
+            'main': test_iter
         },
         optimizer={
                 },
