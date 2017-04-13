@@ -8,12 +8,10 @@ import chainer.links as L
 from chainer import cuda
 from chainer import Variable
 
-from chainer.links import ResNet50Layers
 from chainer import cuda
 from chainer import serializers
 import numpy as np
 from chainer import Variable
-from chainer.links.model.vision.resnet import prepare
 import chainer
 import math
 
@@ -47,7 +45,6 @@ class ResBlock(chainer.Chain):
         return h + x
 
 
-
 class CBR(chainer.Chain):
     def __init__(self, ch0, ch1, bn=True, sample='down', activation=F.relu, dropout=False, noise=False):
         self.bn = bn
@@ -63,6 +60,8 @@ class CBR(chainer.Chain):
             layers['c'] = L.Convolution2D(ch0, ch1, 9, 1, 4, initialW=w)
         elif sample=='none-7':
             layers['c'] = L.Convolution2D(ch0, ch1, 7, 1, 3, initialW=w)
+        elif sample=='none-5':
+            layers['c'] = L.Convolution2D(ch0, ch1, 5, 1, 2, initialW=w)
         else:
             layers['c'] = L.Convolution2D(ch0, ch1, 3, 1, 1, initialW=w)
         if bn:
@@ -73,7 +72,7 @@ class CBR(chainer.Chain):
         super(CBR, self).__init__(**layers)
 
     def __call__(self, x, test):
-        if self.sample=="down" or self.sample=="none" or self.sample=='none-9' or self.sample=='none-7':
+        if self.sample=="down" or self.sample=="none" or self.sample=='none-9' or self.sample=='none-7' or self.sample=='none-5':
             h = self.c(x)
         elif self.sample=="up":
             h = F.unpooling_2d(x, 2, 2, 0, cover_all=False)
@@ -163,20 +162,26 @@ class Generator_ResBlock_9(chainer.Chain):
 
 
 class Discriminator(chainer.Chain):
-    def __init__(self, in_ch=3):
+    def __init__(self, in_ch=3, n_down_layers=4):
         layers = {}
         w = chainer.initializers.Normal(0.02)
-        layers['c0_0'] = CBR(in_ch, 64, bn=False, sample='down', activation=F.leaky_relu, dropout=False, noise=True)
-        layers['c1'] = CBR(64, 128, bn=True, sample='down', activation=F.leaky_relu, dropout=False, noise=True)
-        layers['c2'] = CBR(128, 256, bn=True, sample='down', activation=F.leaky_relu, dropout=False, noise=True)
-        layers['c3'] = CBR(256, 512, bn=True, sample='down', activation=F.leaky_relu, dropout=False, noise=True)
-        layers['c4'] = F.Convolution2D(512, 1, 3, 1, 1, initialW=w)
+        self.n_down_layers = n_down_layers
+
+        layers['c0'] = CBR(in_ch, 64, bn=False, sample='down', activation=F.leaky_relu, dropout=False, noise=True)
+        base = 64
+
+        for i in range(1, n_down_layers):
+            layers['c'+str(i)] = CBR(base, base*2, bn=True, sample='down', activation=F.leaky_relu, dropout=False, noise=True)
+            base*=2
+
+        layers['c'+str(n_down_layers)] = F.Convolution2D(base, 1, 3, 1, 1, initialW=w)
         super(Discriminator, self).__init__(**layers)
 
     def __call__(self, x_0, test=False):
-        h = self.c0_0(x_0, test=test)
-        h = self.c1(h, test=test)
-        h = self.c2(h, test=test)
-        h = self.c3(h, test=test)
-        h = self.c4(h)
+        h = self.c0(x_0, test=test)
+
+        for i in range(1, self.n_down_layers+1):
+            conv = getattr(self, 'c'+str(i))
+            h = conv(h, test=test)
+
         return h
