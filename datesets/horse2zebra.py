@@ -5,7 +5,7 @@ import six
 import json
 import cv2
 from io import BytesIO
-import common.paths as paths
+import ..common.paths as paths
 import numpy as np
 from datasets_base import datasets_base
 

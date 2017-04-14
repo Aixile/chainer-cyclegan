@@ -53,6 +53,7 @@ class Updater(chainer.training.StandardUpdater):
         self._learning_rate_anneal_interval = params['learning_rate_anneal_interval']
         self._image_size = params['image_size']
         self._eval_foler = params['eval_folder']
+        self._dataset = params['dataset']
         self._iter = 0
         self._max_buffer_size = 50
         xp = self.gen_g.xp
@@ -87,7 +88,7 @@ class Updater(chainer.training.StandardUpdater):
             return data
         id = np.random.randint(0, self._max_buffer_size)
         return self._buffer_y[id, :].reshape((1, 3, self._image_size, self._image_size))
-
+        """
     def save_images(self,img, w=2, h=3):
         img = cuda.to_cpu(img)
         img = img.reshape((w, h, 3, self._image_size, self._image_size))
@@ -97,7 +98,7 @@ class Updater(chainer.training.StandardUpdater):
         img = img.astype(np.uint8)
         img = img.reshape((w, h, self._image_size, self._image_size, 3)).transpose(0,2,1,3,4).reshape((w*self._image_size, h*self._image_size, 3))[:,:,::-1]
         Image.fromarray(img).save(self._eval_foler+"/iter_"+str(self._iter)+".jpg")
-
+        """
 
     def update_core(self):
         xp = self.gen_g.xp
@@ -187,4 +188,5 @@ class Updater(chainer.training.StandardUpdater):
             img[3, : ] = y.data
             img[4, : ] = y_x.data
             img[5, : ] = y_x_y.data
-            self.save_images(img)
+            img = self._dataset.batch_postprocess_images(img, 2, 3)
+            Image.fromarray(img).save(self._eval_foler+"/iter_"+str(self._iter)+".jpg")

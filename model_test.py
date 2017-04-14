@@ -11,9 +11,9 @@ from chainer import training
 import chainer.functions as F
 import cv2
 import argparse
-import net
+import common.net as net
 
-from horse2zebra import *
+from datesets.horse2zebra import *
 
 class testUpdater(chainer.training.StandardUpdater):
     def __init__(self, *args, **kwargs):

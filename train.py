@@ -14,18 +14,18 @@ from chainer.training import extensions
 import sys
 #sys.path.append(os.path.dirname(__file__)+os.path.sep+os.path.pardir)
 
-import net
+import common.net as net
+import datasets
 from updater import *
 from evaluation import *
 
 from chainer import cuda, serializers
 import pickle
-from horse2zebra import *
 
 def main():
     parser = argparse.ArgumentParser(
         description='Train CycleGAN')
-    parser.add_argument('--batchsize', '-b', type=int, default=16)
+    parser.add_argument('--batchsize', '-b', type=int, default=1)
     parser.add_argument('--max_iter', '-m', type=int, default=120000)
     parser.add_argument('--gpu', '-g', type=int, default=0,
                         help='GPU ID (negative value indicates CPU)')
@@ -54,6 +54,8 @@ def main():
     parser.add_argument("--flip", type=int, default=1, help='flip images for data augmentation')
     parser.add_argument("--resize_to", type=int, default=200, help='resize the image to')
     parser.add_argument("--crop_to", type=int, default=128, help='resize the image to')
+    parser.add_argument("--load_dataset", default='horse2zebra_train', help='load dataset')
+    parser.add_argument("--discriminator_layer_n", type=int, default=4, help='number of discriminator layers')
 
     parser.add_argument("--learning_rate_anneal", type=float, default=0, help='anneal the learning rate')
     parser.add_argument("--learning_rate_anneal_interval", type=int, default=1000, help='time to anneal the learning')
@@ -74,11 +76,11 @@ def main():
 
     if args.load_gen_g_model != '':
         serializers.load_npz(args.load_gen_g_model, gen_g)
-        print("Generator G model loaded")
+        print("Generator G(X->Y) model loaded")
 
     if args.load_gen_f_model != '':
         serializers.load_npz(args.load_gen_f_model, gen_f)
-        print("Generator F model loaded")
+        print("Generator F(Y->X) model loaded")
 
     if args.load_dis_x_model != '':
         serializers.load_npz(args.load_dis_x_model, dis_x)
@@ -110,23 +112,23 @@ def main():
     opt_x=make_optimizer(dis_x, alpha=args.learning_rate_d)
     opt_y=make_optimizer(dis_y, alpha=args.learning_rate_d)
 
-    train_dataset = horse2zebra_Dataset_train(flip=args.flip, resize_to=args.resize_to, crop_to=args.crop_to)
+    train_dataset = getattr(datasets, args.load_dataset)()(flip=args.flip, resize_to=args.resize_to, crop_to=args.crop_to)
     train_iter = chainer.iterators.MultiprocessIterator(
-        train_dataset, 1, n_processes=4)
+        train_dataset, args.batch_size, n_processes=4)
 
-    train2_iter = chainer.iterators.MultiprocessIterator(
-        train_dataset, args.batchsize, n_processes=4)
+    #train2_iter = chainer.iterators.MultiprocessIterator(
+    #    train_dataset, args.batchsize, n_processes=4)
 
-    test_dataset = horse2zebra_Dataset_train(flip=args.flip, resize_to=args.resize_to, crop_to=args.crop_to)
-    test_iter = chainer.iterators.SerialIterator(
-        test_dataset, 4)
+    #test_dataset = horse2zebra_Dataset_train(flip=args.flip, resize_to=args.resize_to, crop_to=args.crop_to)
+
+    test_iter = chainer.iterators.SerialIterator(train_dataset, 4)
 
     # Set up a trainer
     updater = Updater(
         models=(gen_g, gen_f, dis_x, dis_y),
         iterator={
             'main': train_iter,
-            'dis' : train2_iter,
+            #'dis' : train2_iter,
             'test': test_iter
             },
         optimizer={
@@ -142,7 +144,8 @@ def main():
             'image_size' : args.crop_to,
             'eval_folder' : args.eval_folder,
             'learning_rate_anneal' : args.learning_rate_anneal,
-            'learning_rate_anneal_interval' : args.learning_rate_anneal_interval
+            'learning_rate_anneal_interval' : args.learning_rate_anneal_interval,
+            'dataset' : train_dataset
         })
 
     model_save_interval = (4000, 'iteration')
