@@ -68,12 +68,12 @@ class datasets_base(dataset_mixin.DatasetMixin):
 
     def do_augmentation(self, img):
         if self.flip > 0:
-            img = do_flip(img)
+            img = self.do_flip(img)
 
         if self.resize_to > 0:
-            img = do_resize(img)
+            img = self.do_resize(img, self.resize_to)
 
         if self.crop_to > 0:
-            img = do_random_crop(img)
+            img = self.do_random_crop(img, self.crop_to)
 
         return img

@@ -174,14 +174,14 @@ class Discriminator(chainer.Chain):
             layers['c'+str(i)] = CBR(base, base*2, bn=True, sample='down', activation=F.leaky_relu, dropout=False, noise=True)
             base*=2
 
-        layers['c'+str(n_down_layers)] = F.Convolution2D(base, 1, 3, 1, 1, initialW=w)
+        layers['c'+str(n_down_layers)] = CBR(base, 1, bn=False, sample='none', activation=None, dropout=False, noise=True)
+
         super(Discriminator, self).__init__(**layers)
 
     def __call__(self, x_0, test=False):
         h = self.c0(x_0, test=test)
 
         for i in range(1, self.n_down_layers+1):
-            conv = getattr(self, 'c'+str(i))
-            h = conv(h, test=test)
+            h = getattr(self, 'c'+str(i))(h, test=test)
 
         return h

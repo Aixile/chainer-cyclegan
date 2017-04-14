@@ -188,5 +188,6 @@ class Updater(chainer.training.StandardUpdater):
             img[3, : ] = y.data
             img[4, : ] = y_x.data
             img[5, : ] = y_x_y.data
+            img = cuda.to_cpu(img) 
             img = self._dataset.batch_postprocess_images(img, 2, 3)
             Image.fromarray(img).save(self._eval_foler+"/iter_"+str(self._iter)+".jpg")

@@ -5,9 +5,9 @@ import six
 import json
 import cv2
 from io import BytesIO
-import ..common.paths as paths
+import common.paths as paths
 import numpy as np
-from datasets_base import datasets_base
+from .datasets_base import datasets_base
 
 class horse2zebra_train(datasets_base):
     def __init__(self, dataset_path=paths.root_horse2zebra, flip=1, resize_to=172, crop_to=128):
@@ -35,7 +35,7 @@ class horse2zebra_train(datasets_base):
         return imgA, imgB
 
 
-class horse2zebra_test(dataset_mixin.DatasetMixin):
+class horse2zebra_test(datasets_base):
     def __init__(self, dataset_path=paths.root_horse2zebra, flip=1, resize_to=172, crop_to=128):
         super(horse2zebra_train, self).__init__(flip=flip, resize_to=resize_to, crop_to=crop_to)
         self.dataset_path = dataset_path

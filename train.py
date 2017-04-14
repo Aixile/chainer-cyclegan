@@ -25,7 +25,7 @@ import pickle
 def main():
     parser = argparse.ArgumentParser(
         description='Train CycleGAN')
-    parser.add_argument('--batchsize', '-b', type=int, default=1)
+    parser.add_argument('--batch_size', '-b', type=int, default=1)
     parser.add_argument('--max_iter', '-m', type=int, default=120000)
     parser.add_argument('--gpu', '-g', type=int, default=0,
                         help='GPU ID (negative value indicates CPU)')
@@ -112,7 +112,7 @@ def main():
     opt_x=make_optimizer(dis_x, alpha=args.learning_rate_d)
     opt_y=make_optimizer(dis_y, alpha=args.learning_rate_d)
 
-    train_dataset = getattr(datasets, args.load_dataset)()(flip=args.flip, resize_to=args.resize_to, crop_to=args.crop_to)
+    train_dataset = getattr(datasets, args.load_dataset)(flip=args.flip, resize_to=args.resize_to, crop_to=args.crop_to)
     train_iter = chainer.iterators.MultiprocessIterator(
         train_dataset, args.batch_size, n_processes=4)
 
