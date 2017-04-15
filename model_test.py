@@ -14,6 +14,7 @@ import argparse
 import common.net as net
 
 from datesets.horse2zebra import *
+from PIL import Image
 
 class testUpdater(chainer.training.StandardUpdater):
     def __init__(self, *args, **kwargs):
@@ -72,10 +73,14 @@ if __name__ == '__main__':
     parser.add_argument('--gpu', '-g', type=int, default=0, help='GPU ID (negative value indicates CPU)')
     parser.add_argument('--gen_class', default='Generator_ResBlock_6', help='Default generator class')
     parser.add_argument("--load_gen_f_model", default='', help='load generator model')
+    parser.add_argument('--row', type=int, default=4, help='rows')
+    parser.add_argument('--col', type=int, default=4, help='cols')
     parser.add_argument("--load_gen_g_model", default='', help='load generator model')
     parser.add_argument('--eval_folder', '-e', default='test', help='directory to output the evaluation result')
+    parser.add_argument('--out', '-o', default='output' ,help='saved file')
     parser.add_argument("--resize_to", type=int, default=128, help='resize the image to')
-    parser.add_argument('--test_count', '-t', type=int, default=10, help='')
+
+    #parser.add_argument('--test_count', '-t', type=int, default=10, help='')
 
     args = parser.parse_args()
     print(args)
@@ -88,6 +93,7 @@ if __name__ == '__main__':
 
     gen_g = getattr(net, args.gen_class)()
     gen_f = getattr(net, args.gen_class)()
+
 
     if args.load_gen_g_model != '':
         serializers.load_npz(args.load_gen_g_model, gen_g)
@@ -102,6 +108,36 @@ if __name__ == '__main__':
         gen_f.to_gpu()
         print("use gpu {}".format(args.gpu))
 
+    test_dataset = silverhair_train(flip=0)
+#    result = []
+
+    cnt = args.rows * args.cols
+    xp = gen_g.xp
+    w_in = 256
+
+    input = xp.zeros((cnt, 3, w_in, w_in)).astype("f")
+
+    for i in range(0, args.rows):
+        for j in range(0,args.cols):
+            x, y = test_dataset.get_example(0)
+            input[i*args.cols + j, :] = y
+
+    output = gen_f(Variable(input))
+    output = output.data.get()
+    input = input.data.get()
+    result = np.zeros((cnt*2, 3, w_in, w_in))
+
+    for i in range(0, args.rows):
+        for j in range(0,args.cols):
+            id = i*args.cols + j
+            result[id*2, :] = input[id]
+            result[id*2+1, :] = output[id]
+
+    result=test_dataset.batch_postprocess_images(result, args.rows, args.cols*2)
+    Image.fromarray(img).save(args.eval_foler+"/"+args.out+".jpg")
+
+
+    """
     test_dataset = horse2zebra_Dataset_test(flip=0, resize_to=args.resize_to, crop_to=0)
     test_iter = chainer.iterators.SerialIterator(test_dataset, 1)
     updater = testUpdater(
@@ -119,3 +155,4 @@ if __name__ == '__main__':
 
     trainer = training.Trainer(updater, (args.test_count, 'iteration'))
     trainer.run()
+    """

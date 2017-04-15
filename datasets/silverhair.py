@@ -47,7 +47,7 @@ class silverhair_train(datasets_base):
         return img
 
     def get_example(self, i):
-        np.random.seed(None) 
+        np.random.seed(None)
         idA = self.trainAkey[np.random.randint(0,len(self.trainAkey))]
         idB = self.trainBkey[np.random.randint(0,len(self.trainBkey))]
         #print(idA)
