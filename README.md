@@ -5,7 +5,6 @@ Chainer Implement of [Unpaired Image-to-Image Translation using Cycle-Consistent
 
 Under construction...
 
-Only tested on horse2zebra dataset yet.
+Turn all girls to silver hair !
 
-![sample1](http://i.imgur.com/mYCpfga.jpg "sample1")
-![sample2](http://i.imgur.com/SBlZLWU.jpg "sample2")
+![sample1](http://i.imgur.com/ffk8Xx3.jpg "sample1")
