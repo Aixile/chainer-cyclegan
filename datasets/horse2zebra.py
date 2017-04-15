@@ -19,6 +19,7 @@ class horse2zebra_train(datasets_base):
     def __len__(self):
         return len(self.trainAkey)
 
+
     def get_example(self, i):
         idA = self.trainAkey[np.random.randint(0,len(self.trainAkey))]
         idB = self.trainBkey[np.random.randint(0,len(self.trainBkey))]

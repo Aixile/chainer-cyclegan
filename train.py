@@ -45,17 +45,17 @@ def main():
     parser.add_argument("--load_dis_x_model", default='', help='load discriminator model')
     parser.add_argument("--load_dis_y_model", default='', help='load discriminator model')
 
-    parser.add_argument('--gen_class', default='Generator_ResBlock_6', help='Default generator class')
+    parser.add_argument('--gen_class', default='Generator_ResBlock_9', help='Default generator class')
     parser.add_argument('--dis_class', default='Discriminator', help='Default discriminator class')
 
     parser.add_argument("--lambda1", type=float, default=10.0, help='lambda for reconstruction loss')
-    parser.add_argument("--lambda2", type=float, default=1.0, help='lambda for adversarial loss')
+    parser.add_argument("--lambda2", type=float, default=3.0, help='lambda for adversarial loss')
 
     parser.add_argument("--flip", type=int, default=1, help='flip images for data augmentation')
-    parser.add_argument("--resize_to", type=int, default=200, help='resize the image to')
-    parser.add_argument("--crop_to", type=int, default=128, help='resize the image to')
-    parser.add_argument("--load_dataset", default='horse2zebra_train', help='load dataset')
-    parser.add_argument("--discriminator_layer_n", type=int, default=4, help='number of discriminator layers')
+    parser.add_argument("--resize_to", type=int, default=256, help='resize the image to')
+    parser.add_argument("--crop_to", type=int, default=256, help='resize the image to')
+    parser.add_argument("--load_dataset", default='silverhair_train', help='load dataset')
+    parser.add_argument("--discriminator_layer_n", type=int, default=5, help='number of discriminator layers')
 
     parser.add_argument("--learning_rate_anneal", type=float, default=0, help='anneal the learning rate')
     parser.add_argument("--learning_rate_anneal_interval", type=int, default=1000, help='time to anneal the learning')
