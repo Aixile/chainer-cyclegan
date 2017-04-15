@@ -138,7 +138,7 @@ if __name__ == '__main__':
             result[id*2+1, :] = output[id]
 
     result=test_dataset.batch_postprocess_images(result, args.rows, args.cols*2)
-    Image.fromarray(result).save(args.eval_foler+"/"+args.out+".jpg")
+    Image.fromarray(result).save(args.eval_folder+"/"+args.out+".jpg")
 
 
     """
