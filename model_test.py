@@ -125,10 +125,9 @@ if __name__ == '__main__':
     output = gen_f(Variable(input))
     if args.gpu >= 0:
         output = cuda.to_cpu(output.data)
-        input = cuda.to_cpu(input.data)
+        input = cuda.to_cpu(input)
     else:
         output = output.data
-        input = input.data
 
     result = np.zeros((cnt*2, 3, w_in, w_in))
 
