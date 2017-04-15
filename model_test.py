@@ -13,7 +13,7 @@ import cv2
 import argparse
 import common.net as net
 
-from datesets.horse2zebra import *
+import datasets
 from PIL import Image
 
 class testUpdater(chainer.training.StandardUpdater):
@@ -108,7 +108,7 @@ if __name__ == '__main__':
         gen_f.to_gpu()
         print("use gpu {}".format(args.gpu))
 
-    test_dataset = silverhair_train(flip=0)
+    test_dataset = datasets.silverhair_train(flip=0)
 #    result = []
 
     cnt = args.rows * args.cols
