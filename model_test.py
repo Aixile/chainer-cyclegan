@@ -120,7 +120,7 @@ if __name__ == '__main__':
     for i in range(0, args.rows):
         for j in range(0,args.cols):
             x, y = test_dataset.get_example(0)
-            input[i*args.cols + j, :] = y
+            input[i*args.cols + j, :] = xp.asarray(y)
 
     output = gen_f(Variable(input))
     output = output.data.get()
