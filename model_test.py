@@ -123,13 +123,13 @@ if __name__ == '__main__':
             input[i*args.cols + j, :] = xp.asarray(y)
 
     output = gen_f(Variable(input))
-    if args.gpu >= 0
+    if args.gpu >= 0:
         output = cuda.to_cpu(output.data)
         input = cuda.to_cpu(input.data)
     else:
         output = output.data
         input = input.data
-        
+
     result = np.zeros((cnt*2, 3, w_in, w_in))
 
     for i in range(0, args.rows):
