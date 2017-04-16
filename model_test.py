@@ -129,16 +129,19 @@ if __name__ == '__main__':
     else:
         output = output.data
 
-    result = np.zeros((cnt*2, 3, w_in, w_in))
+    result = np.zeros((cnt, 3, w_in, w_in))
+    result_orig = np.zeros((cnt, 3, w_in, w_in))
 
     for i in range(0, args.rows):
         for j in range(0,args.cols):
             id = i*args.cols + j
-            result[id*2, :] = input[id]
-            result[id*2+1, :] = output[id]
+            result_orig[id, :] = input[id]
+            result[id, :] = output[id]
 
-    result=test_dataset.batch_postprocess_images(result, args.rows, args.cols*2)
+    result=test_dataset.batch_postprocess_images(result, args.rows, args.cols)
+    result_orig = test_dataset.batch_postprocess_images(result, args.rows, args.cols)
     Image.fromarray(result).save(args.eval_folder+"/"+args.out+".jpg")
+    Image.fromarray(result_orig).save(args.eval_folder+"/"+args.out+".orig.jpg")
 
 
     """
