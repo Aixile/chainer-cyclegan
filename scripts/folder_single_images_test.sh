@@ -1,6 +1,6 @@
 #!/bin/bash
-INPUTJPG=$1"*.jpg"
-INPUTPNG=$1"*.png"
+INPUTJPG=$1"/*.jpg"
+INPUTPNG=$1"/*.png"
 OUTPUT=$2
 MODEL=$3
 mkdir -p $2
