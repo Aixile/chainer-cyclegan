@@ -53,7 +53,7 @@ def main():
 
     parser.add_argument("--flip", type=int, default=1, help='flip images for data augmentation')
     parser.add_argument("--resize_to", type=int, default=256, help='resize the image to')
-    parser.add_argument("--crop_to", type=int, default=256, help='resize the image to')
+    parser.add_argument("--crop_to", type=int, default=256, help='crop the resized image to')
     parser.add_argument("--load_dataset", default='silverhair_train', help='load dataset')
     parser.add_argument("--discriminator_layer_n", type=int, default=5, help='number of discriminator layers')
 
