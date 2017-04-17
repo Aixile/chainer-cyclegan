@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 import os
-import glob
+#import glob
 import numpy as np
-
 import chainer
 import chainer.cuda
 from chainer import cuda, serializers, Variable
@@ -13,7 +12,7 @@ import cv2
 import argparse
 import common.net as net
 import datasets
-from PIL import Image
+#from PIL import Image
 from utils import *
 
 if __name__ == '__main__':

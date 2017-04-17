@@ -3,14 +3,20 @@ import cv2
 import numpy as np
 from chainer import cuda
 import chainer
-import cupy
+try:
+    import cupy
+except:
+    pass
 import os
 
 def copy_to_cpu(imgs):
     if type(imgs) == chainer.variable.Variable :
         imgs = imgs.data
-    if type(imgs) == cupy.core.core.ndarray:
-        imgs = cuda.to_cpu(imgs)
+    try:
+        if type(imgs) == cupy.core.core.ndarray:
+            imgs = cuda.to_cpu(imgs)
+    except:
+        pass
     return imgs
 
 def preprocess_tanh(imgs):
@@ -29,18 +35,20 @@ def postprocessing_tanh(imgs):
 # when resize_base is 0, use the shorter edge to determine the resize_base
 def resize_to_nearest_aspect_ratio(img, divide_base=4, resize_base=256):
     w, h = img.shape[0], img.shape[1]
+    #print(w,h)
     if w < h:
         if resize_base == 0:
             resize_base = w - w % divide_base
         s0 = resize_base
-        s1 = int(h * (resize_base / w))
+        s1 = int(h * resize_base / w)
         s1 = s1 - s1 % divide_base
     else:
         if resize_base == 0:
             resize_base = h - h % divide_base
         s1 = resize_base
-        s0 = int(w * (resize_base / h))
+        s0 = int(w * resize_base / h)
         s0 = s0 - s0 % divide_base
+    #print(s1,s0)
     return cv2.resize(img, (s1, s0), interpolation=cv2.INTER_AREA)
 
 
