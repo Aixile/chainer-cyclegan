@@ -6,7 +6,9 @@ Chainer Implement of [Unpaired Image-to-Image Translation using Cycle-Consistent
 Turn all girls to silver hair !
 ![sample1](http://i.imgur.com/PlF5PPe.jpg "sample1")
 
-The model is trained with about 22k images crawled from [www.getchu.com](http://www.getchu.com/).
+The model is trained with about 22k images crawled from [www.getchu.com](http://www.getchu.com/). 
+(I will not release the dataset, due to copyright issues, please make it by yourself.)
+
 
 Original Images:
 ![sample_ori](http://i.imgur.com/hCNGfoN.jpg "sample_ori")
