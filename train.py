@@ -1,26 +1,17 @@
 #!/usr/bin/env python
-
-# python train.py --batchsize 8 --gpu 3 --out result
-
-from __future__ import print_function
 import argparse
 import os
-
 import chainer
 from chainer import training
+from chainer import cuda, serializers
 from chainer.training import extension
 from chainer.training import extensions
-
 import sys
-#sys.path.append(os.path.dirname(__file__)+os.path.sep+os.path.pardir)
-
 import common.net as net
 import datasets
 from updater import *
 from evaluation import *
 
-from chainer import cuda, serializers
-import pickle
 
 def main():
     parser = argparse.ArgumentParser(
