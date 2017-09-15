@@ -8,7 +8,7 @@ sys.path.insert(0, '../')
 from common.loss_functions import *
 from common.models.backwards import *
 
-class HistoricalResultsBuffer():
+class HistoricalBuffer():
     def __init__(self, xp, buffer_size=50, image_size=256, image_channels=3):
         self._buffer_size = buffer_size
         self._img_size = image_size
@@ -16,14 +16,14 @@ class HistoricalResultsBuffer():
         self._cnt = 0
         self._buffer = xp.zeros((self._buffer_size, self._img_ch, self._img_size, self._img_size)).astype("f")
 
-    def get_and_update(data):
+    def get_and_update(data, prob=0.5):
         if self._cnt < self._buffer_size:
             self._buffer[self._cnt, :] = data
             self._cnt += 1
             return data
         pos = self._cnt % self._buffer_size
         self._buffer[pos, : ]=data
-        if np.random.rand() < 0.5:
+        if np.random.rand() < prob:
             return data
         id = np.random.randint(0, self._max_buffer_size)
         return self._buffer[id, :].reshape((1, self._img_ch, self._img_size, self._img_size))
@@ -44,8 +44,8 @@ class Updater(chainer.training.StandardUpdater):
         self._max_buffer_size = params['buffer_size']
 
         xp = self.gen_g.xp
-        self._buffer_x = HistoricalResultsBuffer(xp, self._max_buffer_size, self._image_size)
-        self._buffer_y = HistoricalResultsBuffer(xp, self._max_buffer_size, self._image_size)
+        self._buffer_x = HistoricalBuffer(xp, self._max_buffer_size, self._image_size)
+        self._buffer_y = HistoricalBuffer(xp, self._max_buffer_size, self._image_size)
         super(Updater, self).__init__(*args, **kwargs)
 
 

@@ -9,6 +9,7 @@ from chainer.training import extensions
 from updater import *
 from common.models.discriminators import *
 from common.models.transformers import *
+from common.evaluation.cyclegan import *
 from common.utils import *
 
 
@@ -79,13 +80,12 @@ def main():
     opt_f=make_adam(gen_f, lr=args.learning_rate_g, beta1=0.5)
     opt_x=make_adam(dis_x, lr=args.learning_rate_d, beta1=0.5)
     opt_y=make_adam(dis_y, lr=args.learning_rate_d, beta1=0.5)
-    
 
-    train_dataset = getattr(datasets, args.load_dataset)(flip=args.flip, resize_to=args.resize_to, crop_to=args.crop_to)
+    train_dataset = datasets.image_pairs_train(resize_to=args.resize_to, crop_to=args.crop_to)
     train_iter = chainer.iterators.MultiprocessIterator(
         train_dataset, args.batch_size, n_processes=4)
 
-    test_iter = chainer.iterators.SerialIterator(train_dataset, 4)
+    test_iter = chainer.iterators.SerialIterator(train_dataset, 2)
 
     # Set up a trainer
     updater = Updater(
@@ -105,14 +105,14 @@ def main():
             'lambda1': args.lambda1,
             'lambda2': args.lambda2,
             'image_size' : args.crop_to,
-            'eval_folder' : args.eval_folder,
+            'buffer_size' : 50,
             'learning_rate_anneal' : args.learning_rate_anneal,
             'learning_rate_anneal_interval' : args.learning_rate_anneal_interval,
-            'dataset' : train_dataset
         })
 
+    trainer = training.Trainer(updater, (args.max_iter, 'iteration'), out=args.out)
+
     model_save_interval = (4000, 'iteration')
-    trainer = training.Trainer(updater, (max_iter, 'iteration'), out=args.out)
     trainer.extend(extensions.snapshot_object(
         gen_g, 'gen_g{.updater.iteration}.npz'), trigger=model_save_interval)
     trainer.extend(extensions.snapshot_object(
@@ -122,13 +122,18 @@ def main():
     trainer.extend(extensions.snapshot_object(
         dis_y, 'dis_y{.updater.iteration}.npz'), trigger=model_save_interval)
 
-    log_keys = ['epoch', 'iteration', 'gen_g/loss_rec', 'gen_f/loss_rec', 'gen_g/loss_adv', 'gen_f/loss_adv', 'dis_x/loss', 'dis_y/loss']
+    log_keys = ['epoch', 'iteration', 'gen_g/loss_rec', 'gen_f/loss_rec', 'gen_g/loss_adv',
+                'gen_f/loss_adv', 'dis_x/loss', 'dis_y/loss']
+
     trainer.extend(extensions.LogReport(keys=log_keys, trigger=(20, 'iteration')))
     trainer.extend(extensions.PrintReport(log_keys), trigger=(20, 'iteration'))
     trainer.extend(extensions.ProgressBar(update_interval=50))
 
-
-    # Run the training
+    eval_interval = (args.eval_interval, 'iteration')
+    trainer.extend(
+        cyclegan_sampling(gen_g, gen_f, test_iter, args.out+"/preview/", args.batch_size),
+        trigger=eval_interval
+    )
     trainer.run()
 
 

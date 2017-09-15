@@ -54,7 +54,10 @@ class datasets_base(dataset_mixin.DatasetMixin):
         return img
 
     def do_resize(self, img, resize_to):
-        img = cv2.resize(img, (resize_to, resize_to), interpolation=cv2.INTER_AREA)
+        if isinstance(resize_to, tuple):
+            img = cv2.resize(img, resize_to, interpolation=cv2.INTER_AREA)
+        else:
+            img = cv2.resize(img, (resize_to, resize_to), interpolation=cv2.INTER_AREA)
         return img
 
     def do_flip(self, img):
