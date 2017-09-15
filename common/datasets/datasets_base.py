@@ -8,11 +8,12 @@ from chainer.dataset import dataset_mixin
 import numpy as np
 
 class datasets_base(dataset_mixin.DatasetMixin):
-    def __init__(self, flip=1, resize_to=64, crop_to=0, random_brightness=0):
+    def __init__(self, flip=1, resize_to=64, crop_to=0, random_brightness=0, keep_aspect_ratio=False):
         self.flip = flip
         self.resize_to = resize_to
         self.crop_to  = crop_to
         self.random_brightness = random_brightness
+        self.keep_aspect_ratio = keep_aspect_ratio
 
     def preprocess_image(self, img):
         img = img.astype("f")
@@ -52,11 +53,20 @@ class datasets_base(dataset_mixin.DatasetMixin):
             img = img[x:x+crop_to, y:y+crop_to]
         return img
 
-    def do_resize(self, img, resize_to):
+    def do_resize(self, img, resize_to, keep_aspect_ratio=False):
         if isinstance(resize_to, tuple):
             img = cv2.resize(img, resize_to, interpolation=cv2.INTER_AREA)
-        else:
+        elif not keep_aspect_ratio:
             img = cv2.resize(img, (resize_to, resize_to), interpolation=cv2.INTER_AREA)
+        else:
+            h, w, c = img.shape
+            if h >= w:
+                nw = resize_to
+                nh = nw * h // w
+            else:
+                nh = resize_to
+                nw = nh * w // h
+            img = cv2.resize(img, (nw, nh), interpolation=cv2.INTER_AREA)
         return img
 
     def do_flip(self, img):
@@ -81,7 +91,7 @@ class datasets_base(dataset_mixin.DatasetMixin):
             img = self.do_random_brightness(img)
 
         if self.resize_to > 0:
-            img = self.do_resize(img, self.resize_to)
+            img = self.do_resize(img, self.resize_to, self.keep_aspect_ratio)
 
         if self.crop_to > 0:
             img = self.do_random_crop(img, self.crop_to)

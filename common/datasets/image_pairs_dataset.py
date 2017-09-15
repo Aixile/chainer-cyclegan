@@ -14,7 +14,7 @@ class image_pairs_train(datasets_base):
         self.train_a_key.append(glob.glob(dataset_a + "/*.png"))
         self.train_b_key.append(glob.glob(dataset_b + "/*.png"))
 
-        super(image_pairs_train, self).__init__(flip=flip, resize_to=resize_to, crop_to=crop_to)
+        super(image_pairs_train, self).__init__(flip=flip, resize_to=resize_to, crop_to=crop_to, keep_aspect_ratio=False)
 
     def __len__(self):
         return min(len(self.train_a_key), len(self.train_b_key))

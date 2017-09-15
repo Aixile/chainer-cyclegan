@@ -82,7 +82,7 @@ def main():
     opt_x=make_adam(dis_x, lr=args.learning_rate_d, beta1=0.5)
     opt_y=make_adam(dis_y, lr=args.learning_rate_d, beta1=0.5)
 
-    train_dataset = datasets.image_pairs_train(resize_to=args.resize_to, crop_to=args.crop_to)
+    train_dataset = datasets.image_pairs_train(resize_to=args.resize_to, crop_to=256)
     train_iter = chainer.iterators.MultiprocessIterator(
         train_dataset, args.batch_size, n_processes=4)
 
