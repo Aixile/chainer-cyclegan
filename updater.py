@@ -28,7 +28,6 @@ class HistoricalBuffer():
         id = np.random.randint(0, self._max_buffer_size)
         return self._buffer[id, :].reshape((1, self._img_ch, self._img_size, self._img_size))
 
-
 class Updater(chainer.training.StandardUpdater):
 
     def __init__(self, *args, **kwargs):
@@ -39,7 +38,7 @@ class Updater(chainer.training.StandardUpdater):
         self._lambda2 = params['lambda2']
         self._learning_rate_anneal = params['learning_rate_anneal']
         self._learning_rate_anneal_interval = params['learning_rate_anneal_interval']
-        #self._learning_rate_anneal_trigger = params['learning_rate_anneal_trigger']
+        self._learning_rate_anneal_trigger = params['learning_rate_anneal_trigger']
         self._image_size = params['image_size']
         self._max_buffer_size = params['buffer_size']
 
@@ -121,7 +120,9 @@ class Updater(chainer.training.StandardUpdater):
         opt_f.update()
         opt_g.update()
 
-        if self._learning_rate_anneal > 0 and self._iter % self._learning_rate_anneal_interval == 0:
+        if self._iter >= self._learning_rate_anneal_trigger and
+                        self._learning_rate_anneal > 0 and
+                        self._iter % self._learning_rate_anneal_interval == 0:
             if opt_g.alpha > self._learning_rate_anneal:
                 opt_g.alpha -= self._learning_rate_anneal
             if opt_f.alpha > self._learning_rate_anneal:

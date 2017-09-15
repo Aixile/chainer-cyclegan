@@ -37,7 +37,7 @@ class ResNetImageTransformer(chainer.Chain):
         for i in range(self.up_layers):
             layers['c_up_'+str(i)] = NNBlock(base, base//2, nn='up_subpixel', norm=norm, w_init=w)
             base = base // 2
-        layers['c_last'] =  NNBlock(base, 2, nn='conv', k_size=7, norm=None, w_init=w, activation=F.tanh)
+        layers['c_last'] =  NNBlock(base, 3, nn='conv', k_size=7, norm=None, w_init=w, activation=F.tanh)
 
         super(ResNetImageTransformer, self).__init__(**layers)
 

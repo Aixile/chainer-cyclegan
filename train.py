@@ -17,7 +17,7 @@ def main():
     parser = argparse.ArgumentParser(
         description='Train CycleGAN')
     parser.add_argument('--batch_size', '-b', type=int, default=1)
-    parser.add_argument('--max_iter', '-m', type=int, default=120000)
+    parser.add_argument('--max_iter', '-m', type=int, default=200000)
     parser.add_argument('--gpu', '-g', type=int, default=0,
                         help='GPU ID (negative value indicates CPU)')
     parser.add_argument('--out', '-o', default='result',
@@ -38,8 +38,9 @@ def main():
     parser.add_argument("--lambda1", type=float, default=10.0, help='lambda for reconstruction loss')
     parser.add_argument("--lambda2", type=float, default=3.0, help='lambda for adversarial loss')
 
-    parser.add_argument("--learning_rate_anneal", type=float, default=0, help='anneal the learning rate')
-    parser.add_argument("--learning_rate_anneal_interval", type=int, default=1000, help='time to anneal the learning')
+    parser.add_argument("--learning_rate_anneal", type=float, default=0.000002, help='anneal the learning rate')
+    parser.add_argument("--learning_rate_anneal_interval", type=int, default=1000, help='interval of learning rate anneal')
+    parser.add_argument("--learning_rate_anneal_trigger", type=int, default=100000, help='trigger of learning rate anneal')
 
     args = parser.parse_args()
     print(args)
@@ -48,8 +49,8 @@ def main():
         chainer.cuda.get_device(args.gpu).use()
 
     gen_g = ResNetImageTransformer()
-    dis_x = DCGANDiscriminator(base_size=64, conv_as_last=True)
     gen_f = ResNetImageTransformer()
+    dis_x = DCGANDiscriminator(base_size=64, conv_as_last=True)
     dis_y = DCGANDiscriminator(base_size=64, conv_as_last=True)
 
 
@@ -107,6 +108,7 @@ def main():
             'image_size' : args.crop_to,
             'buffer_size' : 50,
             'learning_rate_anneal' : args.learning_rate_anneal,
+            'learning_rate_anneal_trigger' : args.learning_rate_anneal_trigger,
             'learning_rate_anneal_interval' : args.learning_rate_anneal_interval,
         })
 
