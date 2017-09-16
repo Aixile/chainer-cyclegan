@@ -16,16 +16,18 @@ class HistoricalBuffer():
         self._cnt = 0
         self._buffer = xp.zeros((self._buffer_size, self._img_ch, self._img_size, self._img_size)).astype("f")
 
-    def get_and_update(data, prob=0.5):
+    def get_and_update(self, data, prob=0.5):
+        #print(self._buffer.shape, data.shape)
         if self._cnt < self._buffer_size:
             self._buffer[self._cnt, :] = data
             self._cnt += 1
             return data
         pos = self._cnt % self._buffer_size
+        #print(pos, self._buffer.shape, data.shape)
         self._buffer[pos, : ]=data
         if np.random.rand() < prob:
             return data
-        id = np.random.randint(0, self._max_buffer_size)
+        id = np.random.randint(0, self._buffer_size)
         return self._buffer[id, :].reshape((1, self._img_ch, self._img_size, self._img_size))
 
 class Updater(chainer.training.StandardUpdater):
@@ -60,6 +62,8 @@ class Updater(chainer.training.StandardUpdater):
         x = xp.zeros((batchsize, 3, self._image_size, self._image_size)).astype("f")
         y = xp.zeros((batchsize, 3, self._image_size, self._image_size)).astype("f")
 
+        #print(batchsize)
+        #print(x.shape)
         for i in range(batchsize):
             x[i, :] = xp.asarray(batch[i][0])
             y[i, :] = xp.asarray(batch[i][1])
@@ -82,8 +86,8 @@ class Updater(chainer.training.StandardUpdater):
         opt_x = self.get_optimizer('dis_x')
         opt_y = self.get_optimizer('dis_y')
 
-        dis_y.cleargrads()
-        dis_x.cleargrads()
+        self.dis_y.cleargrads()
+        self.dis_x.cleargrads()
 
         loss_dis_y_fake = loss_func_lsgan_dis_fake(self.dis_y(x_y_copy))
         loss_dis_y_real = loss_func_lsgan_dis_real(self.dis_y(y))
@@ -101,8 +105,8 @@ class Updater(chainer.training.StandardUpdater):
         opt_y.update()
         opt_x.update()
 
-        gen_f.cleargrads()
-        gen_g.cleargrads()
+        self.gen_f.cleargrads()
+        self.gen_g.cleargrads()
 
         loss_gen_g_adv = self._lambda2 * loss_func_lsgan_dis_real(self.dis_y(x_y))
         loss_gen_f_adv = self._lambda2 * loss_func_lsgan_dis_real(self.dis_x(y_x))
@@ -120,9 +124,9 @@ class Updater(chainer.training.StandardUpdater):
         opt_f.update()
         opt_g.update()
 
-        if self._iter >= self._learning_rate_anneal_trigger and
-                        self._learning_rate_anneal > 0 and
-                        self._iter % self._learning_rate_anneal_interval == 0:
+        if self._iter >= self._learning_rate_anneal_trigger and \
+                self._learning_rate_anneal > 0 and \
+                self._iter % self._learning_rate_anneal_interval == 0:
             if opt_g.alpha > self._learning_rate_anneal:
                 opt_g.alpha -= self._learning_rate_anneal
             if opt_f.alpha > self._learning_rate_anneal:

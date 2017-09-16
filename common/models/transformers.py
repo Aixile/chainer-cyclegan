@@ -49,4 +49,5 @@ class ResNetImageTransformer(chainer.Chain):
             h = getattr(self, 'c_res_'+str(i))(h)
         for i in range(self.up_layers):
             h = getattr(self, 'c_up_'+str(i))(h)
+        h = self.c_last(h)
         return h

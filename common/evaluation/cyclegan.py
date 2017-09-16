@@ -21,8 +21,8 @@ def cyclegan_sampling(gen_g, gen_f, test_iter, eval_folder=".", batch_size=1):
         y = xp.zeros((batch_size,) + img_shape).astype("f")
 
         for i in range(batch_size):
-            x[i, :] = batch[i][0]
-            y[i, :] = batch[i][1]
+            x[i, :] = xp.asarray(batch[i][0])
+            y[i, :] = xp.asarray(batch[i][1])
 
         x = Variable(x)
         y = Variable(y)
@@ -33,9 +33,9 @@ def cyclegan_sampling(gen_g, gen_f, test_iter, eval_folder=".", batch_size=1):
             x_y_x = gen_f(x_y)
             y_x_y = gen_g(y_x)
 
-        imgs = xp.concat([x.data, x_y.data, x_y_x.data, y.data, y_x.data, y_x_y.data])
+        imgs = xp.concatenate((x.data, x_y.data, x_y_x.data, y.data, y_x.data, y_x_y.data), axis=0)
         filename="iter_" + str(trainer.updater.iteration) + ".jpg"
-        
+
         save_images_grid(imgs, path=eval_folder+'/'+filename,
-            grid_w=batch_size*3, grid_h=3)
-        return samples_generation
+            grid_w=batch_size*2, grid_h=3)
+    return samples_generation

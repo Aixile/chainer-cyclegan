@@ -7,11 +7,11 @@ from chainer import training
 from chainer import cuda, serializers
 from chainer.training import extensions
 from updater import *
+import common.datasets as datasets
 from common.models.discriminators import *
 from common.models.transformers import *
 from common.evaluation.cyclegan import *
 from common.utils import *
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -22,7 +22,7 @@ def main():
                         help='GPU ID (negative value indicates CPU)')
     parser.add_argument('--out', '-o', default='result',
                         help='Directory to output the result')
-    parser.add_argument('--eval_interval', type=int, default=200,
+    parser.add_argument('--eval_interval', type=int, default=400,
                         help='Interval of evaluating generator')
 
     parser.add_argument("--learning_rate_g", type=float, default=0.0002,
@@ -34,6 +34,9 @@ def main():
     parser.add_argument("--load_gen_g_model", default='', help='load generator model')
     parser.add_argument("--load_dis_x_model", default='', help='load discriminator model')
     parser.add_argument("--load_dis_y_model", default='', help='load discriminator model')
+
+    parser.add_argument("--resize_to", type=int, default=280, help='resize the image to')
+    parser.add_argument("--crop_to", type=int, default=256, help='crop the resized image to')
 
     parser.add_argument("--lambda1", type=float, default=10.0, help='lambda for reconstruction loss')
     parser.add_argument("--lambda2", type=float, default=3.0, help='lambda for adversarial loss')
@@ -82,7 +85,8 @@ def main():
     opt_x=make_adam(dis_x, lr=args.learning_rate_d, beta1=0.5)
     opt_y=make_adam(dis_y, lr=args.learning_rate_d, beta1=0.5)
 
-    train_dataset = datasets.image_pairs_train(resize_to=args.resize_to, crop_to=256)
+    train_dataset = datasets.image_pairs_train('darkskin_pos.json', 'darkskin_neg.json',
+            resize_to=args.resize_to, crop_to=args.crop_to)
     train_iter = chainer.iterators.MultiprocessIterator(
         train_dataset, args.batch_size, n_processes=4)
 
